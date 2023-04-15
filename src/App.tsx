@@ -1,26 +1,37 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { useState } from 'react'
+import './App.sass'
+import Column from './Column'
+import Delivery from './Delivery'
+import Payment from './Payment'
+import Shows from './Shows'
+import Total from './Total'
+import { CartProvider } from './contexts/cart'
 
 function App() {
+  const [page, setPage] = useState<string>('shows')
+  const changePage = (id: string) => setPage(id)
+
+  if (page === 'shows') {
+    return (
+      <div className="main main--shows">
+        <CartProvider>
+          <Shows changePage={changePage} />
+        </CartProvider>
+      </div>
+    )
+  }
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="main">
+      <CartProvider>
+        <Column>
+          <Delivery />
+          <Payment />
+        </Column>
+        <Total />
+      </CartProvider>
     </div>
-  );
+  )
 }
 
-export default App;
+export default App
