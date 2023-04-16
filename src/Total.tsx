@@ -4,7 +4,7 @@ import Column from './Column'
 import { cartContext } from './contexts/cart'
 
 const Total = () => {
-  const { payment, show, cart, quantity } = useContext(cartContext)
+  const { payment, show, quantity } = useContext(cartContext)
   const totalCost = show
     ? show?.price * quantity
     : 0.00
@@ -12,7 +12,6 @@ const Total = () => {
     ? Math.round(0.19248908296 * show?.price * 100) / 100
     : 0
   const orderProcessingFee = 2.95
-  console.log(cart)
 
   return (
     <Column>

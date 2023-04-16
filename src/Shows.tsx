@@ -1,20 +1,24 @@
-import { FormEvent, MouseEvent, useCallback, useContext, useMemo, useState } from 'react'
-import Card from './Card'
+import {
+  MouseEvent,
+  useCallback,
+  useContext,
+  useMemo,
+  useState
+} from 'react'
 import { CartProvider, Show, cartContext } from './contexts/cart'
+import Card from './Card'
+import Cart from './Shows/Cart'
+import Quantity from './Shows/Quantity'
 
 const ENDPOINT = 'https://app.ticketmaster.com'
 const TICKETMASTER_API_KEY = 'GC1x1aepNZWBv4rXugPoN5oWj4F3TGTD'
-
-type Quantity = {
-  id: string
-  value: number
-}
 
 const formatPrice = (price: number) => price.toLocaleString('en-US', { style: 'currency', currency: 'USD' })
 
 const Shows = ({ changePage }: { changePage: (id: string) => void }) => {
   const {
     show: selectedShow,
+    quantity: cartQuantity,
     actions: {
       updateShow,
       updateQuantity: updateCartQuantity,
@@ -24,46 +28,6 @@ const Shows = ({ changePage }: { changePage: (id: string) => void }) => {
   const [shows, setShows] = useState<Show[]>([])
   const [fetched, setFetched] = useState<boolean>(false)
   const [loading, setLoading] = useState<boolean>(false)
-  const [quantity, setQuantity] = useState<Quantity>({
-    id: '',
-    value: 0,
-  })
-
-  const incrementQuantity = (id: string) => {
-    if (id === selected) {
-      const value = quantity.value + 1
-
-      setQuantity({
-        ...quantity,
-        value,
-      })
-      updateCartQuantity(value)
-    }
-  }
-  const decrementQuantity = (id: string) => {
-    if (id === selected && quantity.value > 0) {
-      const value = quantity.value - 1
-
-      setQuantity({
-        ...quantity,
-        value,
-      })
-      updateCartQuantity(value)
-    }
-  }
-  const updateQuantity = (e: FormEvent<HTMLInputElement>, id: string) => {
-    const value = e.currentTarget.value
-
-    if (value.match(/^[0-9]{1}$/)) {
-      const parsedValue = parseInt(e.currentTarget.value, 10)
-
-      setQuantity({
-        ...quantity,
-        value: parsedValue,
-      })
-      updateCartQuantity(parsedValue)
-    }
-  }
 
   const fetchShows = useCallback(async () => {
     if (!fetched) {
@@ -98,18 +62,25 @@ const Shows = ({ changePage }: { changePage: (id: string) => void }) => {
     if (!(target as HTMLElement).closest('.quantity')) {
       if (id === selected) {
         setSelected(null)
-        setQuantity({ id: '', value: 0 })
       } else {
         const selectedShow = shows.find((show: Show) => show.id === id)
 
         if (selectedShow) {
           updateShow(selectedShow)
           setSelected(id)
-          setQuantity({ id, value: 1 })
           updateCartQuantity(1)
         }
       }
     }
+  }
+
+  const showClassname = (id: string) => {
+    if (selected) {
+      if (id === selected) return 'show show--selected'
+      return 'show show--disabled'
+    }
+
+    return 'show'
   }
 
   return (
@@ -118,52 +89,24 @@ const Shows = ({ changePage }: { changePage: (id: string) => void }) => {
         <>
           <div className="shows">
             {!loading && shows.map((show: any) => (
-              <div className={
-                selected
-                  ? show.id === selected ? 'show show--selected' : 'show show--disabled'
-                  : 'show'
-                } key={show.id} onClick={(e: MouseEvent) => handleClick(e, show.id)}>
+              <div
+                className={showClassname(show.id)}
+                key={show.id}
+                onClick={(e: MouseEvent) => handleClick(e, show.id)}
+              >
                 <h3>{show.name}</h3>
                 <span className="pricing">{formatPrice(show.price)}</span>
-                <span className="quantity">
-                  <button
-                    disabled={show.id !== selected}
-                    onClick={() => decrementQuantity(show.id)}
-                  >-</button>
-                  <input
-                    disabled={show.id !== selected}
-                    onChange={(e: FormEvent<HTMLInputElement>) => updateQuantity(e, show.id)}
-                    type="text"
-                    value={quantity.id === show.id ? quantity.value : 0}
-                  />
-                  <button
-                    disabled={show.id !== selected}
-                    onClick={() => incrementQuantity(show.id)}
-                  >+</button>
-                </span>
+                <Quantity
+                  id={show.id}
+                  show={selectedShow}
+                  key={`quantity-${show.id}`}
+                  quantity={cartQuantity}
+                  updateQuantity={updateCartQuantity}
+                />
               </div>
             ))}
           </div>
-          {selected && selectedShow && (
-            <div className="cart">
-              <div className="row row--cart">
-                <span>{selectedShow?.name}</span>
-                <span>{(new Date(selectedShow?.date || '')).toLocaleString('en-US', {
-                  dateStyle: 'long',
-                })}</span>
-              </div>
-              <div className="row row--cart row--summary">
-                {/* <span className="small">{(new Date(selectedShow?.date || '')).toLocaleString('en-US', {
-                  dateStyle: 'long',
-                })}</span> */}
-                <span className="small">{quantity.value}&nbsp;&nbsp;&times;&nbsp;&nbsp;{formatPrice(selectedShow.price)}</span>
-                <span>{formatPrice(selectedShow.price * quantity.value)}</span>
-              </div>
-              <div className="row row--cart">
-                <button className="checkout" disabled={quantity.value === 0} onClick={() => changePage('checkout')}>Checkout</button>
-              </div>
-            </div>
-          )}
+          <Cart changePage={changePage} show={selectedShow} quantity={cartQuantity} />
         </>
       </Card>
     </CartProvider>

@@ -1,6 +1,5 @@
 import { FormEvent, useContext, useState } from 'react'
 import Card from './Card'
-import Column from './Column'
 import { cartContext } from './contexts/cart'
 
 type CreditCard = {

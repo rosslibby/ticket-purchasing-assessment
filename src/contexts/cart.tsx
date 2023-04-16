@@ -1,4 +1,4 @@
-import { FormEvent, createContext, useContext, useState } from 'react'
+import { createContext, useContext, useState } from 'react'
 
 export type Show = {
   id: string
@@ -18,7 +18,7 @@ type Actions = {
   updateQuantity: (quantity: number) => void
 }
 
-type CartContext = {
+export type CartContext = {
   payment: boolean
   show: Show | null
   quantity: number
@@ -51,25 +51,17 @@ export const CartProvider = ({ children }: CartProviderProps) => {
   const [quantity, setQuantity] = useState<number>(0)
 
   const updatePayment = (state: boolean) => {
-    console.log('update payment', state)
     setCart({
       ...cart,
       payment: state,
     })
   }
   const updateQuantity = (quantity: number) => {
-    console.log('update quantity to', quantity)
     setQuantity(quantity)
   }
 
   const updateShow = (show: Show) => {
-    console.log('updating show', show)
     setShow(show)
-    setCart({
-      ...cart,
-      show,
-      cart: { ...cart.cart, show }
-    })
   }
 
   return (
