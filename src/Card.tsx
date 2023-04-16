@@ -1,3 +1,5 @@
+import styles from './styles/card.module.sass'
+
 type CardProps = {
   children: string | JSX.Element | JSX.Element[]
   title: string | JSX.Element
@@ -5,8 +7,8 @@ type CardProps = {
 
 const Card = ({ children, title }: CardProps) => {
   return (
-    <div className="card">
-      <h2 className="card__title">{title}</h2>
+    <div className={styles.card}>
+      <h2 className={styles.card__title}>{title}</h2>
       {children}
     </div>
   )

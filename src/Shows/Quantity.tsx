@@ -1,5 +1,6 @@
 import { FormEvent } from 'react'
 import { Show } from '../contexts/cart'
+import styles from '../styles/Quantity.module.sass'
 
 type QuantityProps = {
   id: string
@@ -38,7 +39,7 @@ const Quantity = ({ id, quantity, show, updateQuantity }: QuantityProps) => {
   }
 
   return (
-    <span className="quantity">
+    <span className={`quantity ${styles.quantity}`}>
       <button
         disabled={id !== selected}
         onClick={decrement}

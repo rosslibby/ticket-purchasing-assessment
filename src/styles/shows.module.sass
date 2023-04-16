@@ -1,0 +1,40 @@
+.shows
+  display: grid
+  grid-template-rows: auto
+  max-height: 70vh
+  overflow: scroll
+
+.show
+  align-items: flex-start
+  background-color: #f2f7fd
+  border: 1px solid #d9e7f8
+  box-sizing: border-box
+  column-gap: 0.75rem
+  display: grid
+  grid-template-columns: 8fr 1fr 1fr
+  margin-bottom: 1.125rem
+  padding: 1.125rem
+  transition: all .2s ease
+
+  &:hover
+    cursor: pointer
+    opacity: 1
+
+  &:last-child
+    margin-bottom: 0
+
+  &--selected
+    border-color: #00ffa9
+    background-color: #00ffa92b
+    color: #073f2c
+
+  &--disabled
+    opacity: 0.5
+
+  h3
+    font-size: 0.975rem
+    font-weight: 500
+    margin: 0
+  
+  .pricing
+    font-weight: 700

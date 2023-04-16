@@ -1,6 +1,10 @@
 import { FormEvent, useContext, useState } from 'react'
 import Card from './Card'
 import { cartContext } from './contexts/cart'
+import cardStyles from './styles/card.module.sass'
+import layoutStyles from './styles/layout.module.sass'
+import paymentStyles from './styles/payment.module.sass'
+import { CARD_LOGOS } from './data'
 
 type CreditCard = {
   id: string
@@ -14,30 +18,26 @@ type CreditCard = {
   zip?: string
 }
 
-const CARD_LOGOS: {
-  [key: string]: string
-} = {
-  'Visa': 'https://usa.visa.com/dam/VCOM/regional/ve/romania/blogs/hero-image/visa-logo-800x450.jpg',
-  'Discover': 'https://www.discover.com/company/images/newsroom/media-downloads/discover.png',
-  'Mastercard': 'https://www.mastercard.com/content/dam/public/brandcenter/en/Logo-1.5x.png',
-  'AMEX': 'https://www.americanexpress.com/content/dam/amex/us/merchant/supplies-uplift/product/images/img-WEBLOGO1-01.jpg'
-}
-
 const Payment = () => {
   const cart = useContext(cartContext)
   const [addCard, setAddCard] = useState<boolean>(false)
   const [newCard, setNewCard] = useState<CreditCard>({ id: '0' })
   const [securityCode, setSecurityCode] = useState<string>('')
   const [newCardSteps, setNewCardSteps] = useState<{
-    number?: boolean
-    exp?: boolean
-    zip?: boolean
-    name?: boolean
-  }>()
+    number: boolean
+    exp: boolean
+    zip: boolean
+    name: boolean
+  }>({
+    number: false,
+    exp: false,
+    zip: false,
+    name: false,
+  })
   const [cards, setCards] = useState<CreditCard[]>([
     {
       id: '0',
-      logo: 'https://1000logos.net/wp-content/uploads/2017/06/VISA-Logo.jpg',
+      logo: CARD_LOGOS.Visa,
       type: 'Visa',
       number: 9999,
       name: 'John Doe',
@@ -110,9 +110,10 @@ const Payment = () => {
     const date = e.currentTarget.value
 
     // Check date format MM/YY
-    if (!date.match(/^[0-1][1-9]\/[2-9][0-9]$/)) {
+    if (!date.match(/^[0-1][0-9]\/[2-9][0-9]$/)) {
       setNewCardSteps({ ...newCardSteps, exp: false })
     } else {
+      console.log('we got a real date', date)
       setNewCardSteps({ ...newCardSteps, exp: true })
     }
 
@@ -158,9 +159,15 @@ const Payment = () => {
       }
     ])
     setNewCard({ id: cards.length.toString() })
-    setNewCardSteps({})
+    setNewCardSteps({
+      number: false,
+      exp: false,
+      zip: false,
+      name: false,
+    })
     setAddCard(false)
   }
+  console.log(newCardSteps)
 
   const deleteCard = (id: string) => setCards(
     (prevState: CreditCard[]) => prevState.filter(
@@ -186,16 +193,17 @@ const Payment = () => {
     )
   )
 
-  const saveCardDisabled = newCardSteps
-    ? newCardSteps.exp === false || newCardSteps.zip === false || newCardSteps.name === false || newCardSteps.number === false
-    : true
+  const saveCardDisabled = newCardSteps.exp === false
+    || newCardSteps.zip === false
+    || newCardSteps.name === false
+    || newCardSteps.number === false
 
   return (
     <Card title="Payment">
       <h3>Use Credit / Debit Card</h3>
-      <div className="payment-form">
+      <div className={paymentStyles['payment-form']}>
         {cards.map((card: CreditCard) => (
-          <div className="credit-card" key={card.id}>
+          <div className={paymentStyles['credit-card']} key={card.id}>
             <input
               type="radio"
               value={card.id}
@@ -203,44 +211,44 @@ const Payment = () => {
               name="card"
               defaultChecked={card.selected}
             />
-            <div className="credit-card__line-item">
-              <div className="credit-card__info">
+            <div className={paymentStyles['credit-card__line-item']}>
+              <div className={paymentStyles['credit-card__info']}>
                 <img src={card.logo} alt="Credit card logo" />
-                <div className="credit-card__details">
+                <div className={paymentStyles['credit-card__details']}>
                   {!card.editing && (
                     <>
                       <h3>{card.type} &minus; {card.number}</h3>
-                      <p className="light">{card.name}&nbsp;&nbsp;|&nbsp;&nbsp;exp. {card.exp}</p>
+                      <p className={layoutStyles.light}>{card.name}&nbsp;&nbsp;|&nbsp;&nbsp;exp. {card.exp}</p>
                     </>
                   )}
                   {card.editing && (
-                    <div className="edit-credit-card">
+                    <div className={paymentStyles['edit-credit-card']}>
                       <input type="text" placeholder="4242 4242 4242 4242" />
-                      <div className="row">
+                      <div className={layoutStyles.row}>
                         <input type="text" placeholder="Full Name" defaultValue={card.name} />
                         <input type="text" placeholder="MM/YY" defaultValue={card.exp} />
                       </div>
                     </div>
                   )}
-                  <div className="credit-card__actions credit-card__actions--spacing-top">
+                  <div className={`${paymentStyles['credit-card__actions']} ${paymentStyles['credit-card__actions--spacing-top']}`}>
                     <button
-                      className="action-button"
+                      className={cardStyles['action-button']}
                       onClick={() => editCard(card.id)}
                     >Edit</button>
-                    <span className="light">&nbsp;&nbsp;|&nbsp;&nbsp;</span>
+                    <span className={layoutStyles.light}>&nbsp;&nbsp;|&nbsp;&nbsp;</span>
                     <button
-                      className="action-button"
+                      className={cardStyles['action-button']}
                       onClick={() => deleteCard(card.id)}
                     >Delete</button>
                   </div>
                 </div>
               </div>
               {card.selected && (
-                <div className="credit-card__security-code">
+                <div className={paymentStyles['credit-card__security-code']}>
                   <label>Security Code</label>
-                  <div className="form">
+                  <div className={paymentStyles.form}>
                     <input type="password" placeholder="000" onChange={updateSecurityCode} />
-                    <label className="small light">
+                    <label className={`${layoutStyles.small} ${layoutStyles.light}`}>
                       <svg width="45" height="37" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" fill="#727272"><path d="M64 48C37.5 48 16 69.5 16 96v32H560V96c0-26.5-21.5-48-48-48H64zM16 144v96H560V144H16zm0 112V416c0 26.5 21.5 48 48 48H512c26.5 0 48-21.5 48-48V256H16zM0 96C0 60.7 28.7 32 64 32H512c35.3 0 64 28.7 64 64V416c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V96zM96 360c0-4.4 3.6-8 8-8h80c4.4 0 8 3.6 8 8s-3.6 8-8 8H104c-4.4 0-8-3.6-8-8zm128 0c0-4.4 3.6-8 8-8H376c4.4 0 8 3.6 8 8s-3.6 8-8 8H232c-4.4 0-8-3.6-8-8z"/></svg>
                       <span>3-digits on back of card</span>
                     </label>
@@ -251,21 +259,21 @@ const Payment = () => {
           </div>
         ))}
         {!addCard && (
-          <div className="add-credit-card">
-            <button className="action-button action-button__icon" onClick={toggleAddCard}>+</button>
+          <div className={paymentStyles['add-credit-card']}>
+            <button className={`${cardStyles['action-button']} ${cardStyles['action-button__icon']}`} onClick={toggleAddCard}>+</button>
             <svg width="45" height="37" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><path d="M64 48C37.5 48 16 69.5 16 96V416c0 26.5 21.5 48 48 48H512c26.5 0 48-21.5 48-48V96c0-26.5-21.5-48-48-48H64zM0 96C0 60.7 28.7 32 64 32H512c35.3 0 64 28.7 64 64V416c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V96zM96 360c0-4.4 3.6-8 8-8h80c4.4 0 8 3.6 8 8s-3.6 8-8 8H104c-4.4 0-8-3.6-8-8zm128 0c0-4.4 3.6-8 8-8H376c4.4 0 8 3.6 8 8s-3.6 8-8 8H232c-4.4 0-8-3.6-8-8z"/></svg>
-            <span className="credit-card__actions"><button onClick={toggleAddCard}>Add New Card</button></span>
+            <span className={paymentStyles['credit-card__actions']}><button onClick={toggleAddCard}>Add New Card</button></span>
           </div>
         )}
 
         {addCard && (
-          <div className="add-credit-card-form">
-            <div className="credit-card credit-card--full">
+          <div className={paymentStyles['add-credit-card-form']}>
+            <div className={`${paymentStyles['credit-card']} ${paymentStyles['credit-card--full']}`}>
               <h3>Add New Card</h3>
-              <form className="form form--edit-card">
-                <div className="number">
+              <form className={`${paymentStyles.form} ${paymentStyles['form--edit-card']}`}>
+                <div className={paymentStyles.number}>
                   <label htmlFor="credit-card-number">Card number</label>
-                  <div className="number__form">
+                  <div className={paymentStyles.number__form}>
                     <input
                       defaultValue={newCard?.number}
                       type="text"
@@ -273,14 +281,14 @@ const Payment = () => {
                       id="credit-card-number"
                       onChange={updateCardNumber}
                     />
-                    <label className="small light">
+                    <label className={`${layoutStyles.small} ${layoutStyles.light}`}>
                       <svg width="45" height="37" fill="#727272" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><path d="M64 48C37.5 48 16 69.5 16 96V416c0 26.5 21.5 48 48 48H512c26.5 0 48-21.5 48-48V96c0-26.5-21.5-48-48-48H64zM0 96C0 60.7 28.7 32 64 32H512c35.3 0 64 28.7 64 64V416c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V96zM96 360c0-4.4 3.6-8 8-8h80c4.4 0 8 3.6 8 8s-3.6 8-8 8H104c-4.4 0-8-3.6-8-8zm128 0c0-4.4 3.6-8 8-8H376c4.4 0 8 3.6 8 8s-3.6 8-8 8H232c-4.4 0-8-3.6-8-8z"/></svg>
                       <span>16-digits on front of card</span>
                     </label>
                   </div>
                 </div>
-                <div className="details">
-                  <div className="details__form">
+                <div className={paymentStyles.details}>
+                  <div className={paymentStyles.details__form}>
                     <label htmlFor="cc-full-name">Full Name</label>
                     <input
                       defaultValue={newCard?.name}
@@ -290,7 +298,7 @@ const Payment = () => {
                       onChange={updateCardName}
                     />
                   </div>
-                  <div className="details__form">
+                  <div className={paymentStyles.details__form}>
                     <label htmlFor="cc-exp">Exp. date</label>
                     <input
                       defaultValue={newCard?.exp}
@@ -300,7 +308,7 @@ const Payment = () => {
                       onChange={updateCardDate}
                     />
                   </div>
-                  <div className="details__form">
+                  <div className={paymentStyles.details__form}>
                     <label htmlFor="cc-zip">Zip</label>
                     <input
                       defaultValue={newCard?.zip}
@@ -313,19 +321,19 @@ const Payment = () => {
                 </div>
               </form>
               <br />
-              <span className="light">
+              <span className={layoutStyles.light}>
                 <button
-                  className="action-button"
+                  className={cardStyles['action-button']}
                   disabled={saveCardDisabled}
                   onClick={saveCard}
                 >Save card</button>
                 &nbsp;&nbsp;|&nbsp;&nbsp;
-                <button className="action-button action-button--secondary" onClick={toggleAddCard}>Cancel</button>
+                <button className={`${cardStyles['action-button']} ${cardStyles['action-button--secondary']}`} onClick={toggleAddCard}>Cancel</button>
               </span>
             </div>
           </div>
         )}
-        <div className="add-credit-card add-credit-card--alternate-payment">
+        <div className={`${paymentStyles['add-credit-card']} ${paymentStyles['add-credit-card--alternate-payment']}`}>
           <h3>Or Pay With</h3>
           <p>By using a digital wallet and continuing past this page, you have read and are accepting the <a href="#">Terms of Use</a>.</p>
         </div>

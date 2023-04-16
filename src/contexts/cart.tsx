@@ -7,14 +7,9 @@ export type Show = {
   price: number
 }
 
-type Cart = {
-  show: Show | null
-  quantity: number
-}
-
 type Actions = {
   updatePayment: (state: boolean) => void
-  updateShow: (show: Show) => void
+  updateShow: (show: Show | null) => void
   updateQuantity: (quantity: number) => void
 }
 
@@ -22,7 +17,6 @@ export type CartContext = {
   payment: boolean
   show: Show | null
   quantity: number
-  cart: Cart
   actions: Actions
 }
 
@@ -34,13 +28,9 @@ export const cartContext = createContext<CartContext>({
   payment: false,
   quantity: 0,
   show: null,
-  cart: {
-    show: null,
-    quantity: 0,
-  },
   actions: {
     updatePayment: (state: boolean) => null,
-    updateShow: (show: Show) => null,
+    updateShow: (show: Show | null) => null,
     updateQuantity: (quantity: number) => null,
   }
 })
@@ -60,7 +50,7 @@ export const CartProvider = ({ children }: CartProviderProps) => {
     setQuantity(quantity)
   }
 
-  const updateShow = (show: Show) => {
+  const updateShow = (show: Show | null) => {
     setShow(show)
   }
 

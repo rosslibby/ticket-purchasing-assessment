@@ -9,6 +9,7 @@ import { CartProvider, Show, cartContext } from './contexts/cart'
 import Card from './Card'
 import Cart from './Shows/Cart'
 import Quantity from './Shows/Quantity'
+import styles from './styles/shows.module.sass'
 
 const ENDPOINT = 'https://app.ticketmaster.com'
 const TICKETMASTER_API_KEY = 'GC1x1aepNZWBv4rXugPoN5oWj4F3TGTD'
@@ -62,6 +63,8 @@ const Shows = ({ changePage }: { changePage: (id: string) => void }) => {
     if (!(target as HTMLElement).closest('.quantity')) {
       if (id === selected) {
         setSelected(null)
+        updateShow(null)
+        updateCartQuantity(0)
       } else {
         const selectedShow = shows.find((show: Show) => show.id === id)
 
@@ -76,18 +79,18 @@ const Shows = ({ changePage }: { changePage: (id: string) => void }) => {
 
   const showClassname = (id: string) => {
     if (selected) {
-      if (id === selected) return 'show show--selected'
-      return 'show show--disabled'
+      if (id === selected) return `${styles.show} ${styles['show--selected']}`
+      return `${styles.show} ${styles['show--disabled']}`
     }
 
-    return 'show'
+    return styles.show
   }
 
   return (
     <CartProvider>
       <Card title="Upcoming shows">
         <>
-          <div className="shows">
+          <div className={styles.shows}>
             {!loading && shows.map((show: any) => (
               <div
                 className={showClassname(show.id)}
